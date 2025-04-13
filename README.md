@@ -1,6 +1,6 @@
 # Large Integer Multiplication: Naive Schoolbook Reference
 
-This project provides a simple C++ implementation of the “schoolbook” (naive) multiplication algorithm for arbitrarily large nonnegative integers represented as decimal strings. It also includes a test harness that generates random operands and prints their product, so you can verify more advanced algorithms (Karatsuba, Toom–Cook, FFT‑based) against a known‑correct baseline.
+This project provides a simple C++ implementation of the “schoolbook” (naive) multiplication algorithm for arbitrarily large nonnegative integers represented as decimal strings. It also includes a test harness that generates random operands and prints their product, so you can verify more advanced algorithms (Karatsuba, Toom–Cook) against a known‑correct baseline.
 
 ---
 
@@ -59,21 +59,18 @@ Runs 10 tests multiplying two 500‑digit numbers each.
 For each test, prints:
 
 ```text
+// if verifiable by C++ multiplication: Matches C++ multiplication
 Test #1:
   A = <first random number>
   B = <second random number>
   A * B = <product>
+  
+  ...
+
+Average time elapsed: <average time elapsed>
 ```
 
-Use the printed products to verify correctness of your Karatsuba, Toom–Cook, or FFT‑based implementations.
-
----
-
-## Extending
-
-- Integrate this harness into unit tests by capturing stdout and comparing results.  
-- Adapt `random_bigint` to other bases (e.g., hex) if needed.  
-- Increase performance by switching to more advanced algorithms once verified.  
+Use the printed products to verify correctness of your Karatsuba and Toom–Cook implementations.
 
 ---
 
