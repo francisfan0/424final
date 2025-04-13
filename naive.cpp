@@ -63,7 +63,8 @@ std::string truncate_display(const std::string &s) {
 
 int main(int argc, char* argv[]) {
     size_t num_tests = 5;
-    size_t length    = 1000;
+    size_t length = 1000;
+    double total_runtime = 0;
 
     if (argc >= 2) num_tests = std::stoul(argv[1]);
     if (argc >= 3) length    = std::stoul(argv[2]);
@@ -80,7 +81,21 @@ int main(int argc, char* argv[]) {
         auto C     = naive_mul(A, B);
         auto end   = std::chrono::high_resolution_clock::now();
 
+        if (length <= 9) {
+            long long a_ll = std::stoll(A);
+            long long b_ll = std::stoll(B);
+            long long c_ll = a_ll * b_ll;
+            std::string expected = std::to_string(c_ll);
+        
+            if (expected != C) {
+                std::cerr << "Mismatch! Expected " << expected << "\n";
+            } else {
+                std::cout << "Matches C++ multiplication\n";
+            }
+        }
+
         std::chrono::duration<double> elapsed = end - start;
+        total_runtime += elapsed.count();
 
         std::cout << "Test #" << t << ":\n";
         std::cout << "  A (" << A.size() << " digits) = "
@@ -91,6 +106,7 @@ int main(int argc, char* argv[]) {
                   << truncate_display(C) << "\n";
         std::cout << "  Time elapsed: " << elapsed.count() << " seconds\n\n";
     }
+    std::cout << "Average Time Elapsed: " << total_runtime / num_tests << " seconds\n\n";
 
     return 0;
 }
