@@ -1,25 +1,30 @@
-# Large Integer Multiplication: Naive Schoolbook Reference
+# Large Integer Multiplication
 
-This project provides a simple C++ implementation of the “schoolbook” (naive) multiplication algorithm for arbitrarily large nonnegative integers represented as decimal strings. It also includes a test harness that generates random operands and prints their product, so you can verify more advanced algorithms (Karatsuba, Toom–Cook) against a known‑correct baseline.
+This project provides C++ implementations of large integer multiplication algorithms using decimal strings. It includes both the “schoolbook” (naive) algorithm and an optimized Karatsuba method, along with a benchmark/test harness to compare their performance and correctness.
 
 ---
 
 ## Features
 
-- Generates random big integers of specified digit length (no leading zeros)  
-- Multiplies two decimal strings in $O(n^2)$ time using the classic algorithm  
-- Command‑line interface to specify number of tests and operand length  
-- Plain‑text output: inputs and product for each test case  
+- Randomly generates large integers of a specified digit length (no leading zeros)  
+- Multiplies two decimal strings using:
+  - Naive (grade-school) algorithm: $O(n^2)$  
+  - Karatsuba multiplication: $O(n^{\log_2 3}) \approx O(n^{1.585})$  
+- Compares and verifies both algorithms for correctness  
+- Reports detailed performance statistics and speedup  
+- Command-line interface to configure number of tests and operand size  
 
 ---
 
 ## Requirements
 
-- C++11 (or newer) compiler  
+- C++17 or newer  
 - Standard library headers:
   - `<iostream>`
   - `<string>`
   - `<vector>`
+  - `<chrono>`
+  - `<iomanip>`
   - `<random>`
   - `<algorithm>`
 
@@ -29,8 +34,18 @@ No external dependencies.
 
 ## Building
 
+Use the included `Makefile`:
+
 ```bash
-g++ -std=c++11 -O2 -o naive naive.cpp
+make
+```
+
+This compiles all sources and produces an executable named `multiply_test`.
+
+You can also clean up build artifacts with:
+
+```bash
+make clean
 ```
 
 ---
@@ -38,42 +53,47 @@ g++ -std=c++11 -O2 -o naive naive.cpp
 ## Usage
 
 ```bash
-./naive [NUM_TESTS] [DIGITS_PER_OPERAND]
+./multiply_test [NUM_TESTS] [DIGITS_PER_OPERAND]
 ```
 
-- `NUM_TESTS` (optional): number of random test cases (default: 5)  
-- `DIGITS_PER_OPERAND` (optional): length of each operand in digits (default: 1000)  
+- `NUM_TESTS` (optional): number of test cases to run (default: 5)  
+- `DIGITS_PER_OPERAND` (optional): length of each operand (default: 1000 digits)  
 
 **Example:**
 
 ```bash
-./naive 10 500
+./multiply_test 10 500
 ```
 
-Runs 10 tests multiplying two 500‑digit numbers each.
+Runs 10 tests of multiplying two randomly generated 500-digit integers.
 
 ---
 
 ## Output
 
-For each test, prints:
+For each test case, the program prints:
 
-```text
-// if verifiable by C++ multiplication: Matches C++ multiplication
-Test #1:
-  A = <first random number>
-  B = <second random number>
-  A * B = <product>
-  
-  ...
+- Truncated representations of input operands  
+- Results from both the naive and Karatsuba algorithms  
+- Whether results match (either directly or via small-size verification)  
+- Timing for each algorithm and the calculated speedup  
 
-Average time elapsed: <average time elapsed>
+**Example output:**
+
 ```
-
-Use the printed products to verify correctness of your Karatsuba and Toom–Cook implementations.
+Test #1:
+  A (500 digits) = 39492...
+  B (500 digits) = 20348...
+  Naive result (999 digits) = 80325...
+  Karatsuba result (999 digits) = 80325...
+  Verification: PASSED
+  Naive time: 0.312 seconds
+  Karatsuba time: 0.087 seconds
+  Speedup: 3.58x
+```
 
 ---
 
 ## License
 
-MIT License. Feel free to reuse and adapt.  
+MIT License — feel free to reuse, modify, and share.
