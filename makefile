@@ -1,19 +1,13 @@
-CXX = g++
-CXXFLAGS = -O3 -std=c++17 -Wall -Wextra
+# Example Makefile update
+CC = g++
+CFLAGS = -O3 -std=c++17 -Wall -Wextra -fopenmp
+OBJECTS = naive.o seq_karatsuba.o utils.o test_multiply.o par_karatsuba.o
 
-SOURCES = naive.cpp seq_karatsuba.cpp utils.cpp test_multiply.cpp
-OBJECTS = $(SOURCES:.cpp=.o)
-TARGET = multiply_test
+multiply_test: $(OBJECTS)
+	$(CC) $(CFLAGS) -o multiply_test $(OBJECTS)
 
-all: $(TARGET)
-
-$(TARGET): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
-
-%.o: %.cpp bigint_multiply.h
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+%.o: %.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJECTS) $(TARGET)
-
-.PHONY: all clean
+	rm -f *.o multiply_test
