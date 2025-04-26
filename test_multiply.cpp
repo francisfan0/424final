@@ -10,7 +10,8 @@ enum class Algorithm {
     NAIVE = 0,
     KARATSUBA_SEQ = 1,
     KARATSUBA_PAR = 2,
-    TOOM_COOK_SEQ = 3
+    TOOM_COOK_SEQ = 3,
+    TOOM_COOK_PAR = 4,
 };
 
 bool verify_result(const std::string& a, const std::string& b, 
@@ -43,7 +44,8 @@ void print_usage(const char* program_name) {
               << "                   0: naive\n"
               << "                   1: karatsuba sequential\n"
               << "                   2: karatsuba parallel\n"
-              << "                   3: toom cook sequential\n";
+              << "                   3: toom cook sequential\n"
+              << "                   4: toom cook parallel\n";
 }
 
 Algorithm parse_algorithm(int choice) {
@@ -52,6 +54,7 @@ Algorithm parse_algorithm(int choice) {
         case 1: return Algorithm::KARATSUBA_SEQ;
         case 2: return Algorithm::KARATSUBA_PAR;
         case 3: return Algorithm::TOOM_COOK_SEQ;
+        case 4: return Algorithm::TOOM_COOK_PAR;
         default: throw std::invalid_argument("Invalid algorithm choice");
     }
 }
@@ -62,6 +65,7 @@ std::string algorithm_to_string(Algorithm alg) {
         case Algorithm::KARATSUBA_SEQ: return "Karatsuba Sequential";
         case Algorithm::KARATSUBA_PAR: return "Karatsuba Parallel";
         case Algorithm::TOOM_COOK_SEQ: return "Toom Cook Sequential";
+        case Algorithm::TOOM_COOK_PAR: return "Toom Cook Parallel";
         default: return "Unknown";
     }
 }
@@ -136,6 +140,9 @@ int main(int argc, char* argv[]) {
                 }
                 if (alg == Algorithm::TOOM_COOK_SEQ) {
                     result = toom_cook_mul_string(A, B);
+                }
+                if (alg == Algorithm::TOOM_COOK_PAR) {
+                    result = par_toom_cook_mul_string(A, B);
                 }
             }
 

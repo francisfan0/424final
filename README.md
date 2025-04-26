@@ -12,6 +12,7 @@ This project provides C++ implementations of large integer multiplication algori
   - Sequential Karatsuba multiplication: $O(n^{\log_2 3}) \approx O(n^{1.585})$
   - Parallel Karatsuba multiplication: Parallelized version using OpenMP
   - Sequential 3-way Toom-Cook multiplication: $O(n^{\log_3 5}) \approx O(n^{1.465})$
+  - Parallel 3-way Toom-Cook multiplication: Parallelized version using OpenMP
 - Compares and verifies algorithms for correctness  
 - Reports detailed performance statistics and speedup  
 - Command-line interface to configure number of tests, operand size, and algorithm selection
@@ -65,6 +66,7 @@ make clean
   - `1`: Sequential Karatsuba
   - `2`: Parallel Karatsuba
   - `3`: Sequential Toom-Cook
+  - `4`: Parallel Toom-Cook
 
 **Examples:**
 
