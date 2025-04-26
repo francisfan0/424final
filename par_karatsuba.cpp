@@ -28,6 +28,7 @@ std::vector<long long> par_karatsuba_mul_vector(const std::vector<long long>& x,
     if (len >= PARALLEL_THRESHOLD) {
         #pragma omp parallel sections
         {
+            // std::cout << "  Using " << omp_get_max_threads() << " threads\n";
             #pragma omp section
             {
                 P1 = par_karatsuba_mul_vector(Xl, Yl);
@@ -63,51 +64,35 @@ std::vector<long long> par_karatsuba_mul_vector(const std::vector<long long>& x,
     
     if (len >= PARALLEL_THRESHOLD / 4) {
         #pragma omp parallel for
-        for (size_t i = 0; i < len; ++i) {
-            P3[i] -= P2[i] + P1[i];
+        for (size_t i = 0; i < P3.size(); ++i) {
+            if (i < P1.size()) P3[i] -= P1[i];
+            if (i < P2.size()) P3[i] -= P2[i];
         }
     } else {
-        for (size_t i = 0; i < len; ++i) {
-            P3[i] -= P2[i] + P1[i];
+        for (size_t i = 0; i < P3.size(); ++i) {
+            if (i < P1.size()) P3[i] -= P1[i];
+            if (i < P2.size()) P3[i] -= P2[i];
         }
     }
-    
-    if (len >= PARALLEL_THRESHOLD / 4) {
-        #pragma omp parallel sections
-        {
-            #pragma omp section
-            {
-                for (size_t i = 0; i < len; ++i) {
-                    res[i] = P2[i];
-                }
-            }
-            
-            #pragma omp section
-            {
-                for (size_t i = len; i < 2 * len; ++i) {
-                    res[i] = P1[i - len];
-                }
-            }
-            
-            #pragma omp section
-            {
-                for (size_t i = k; i < len + k; ++i) {
-                    res[i] += P3[i - k];
-                }
-            }
-        }
-    } else {
-        for (size_t i = 0; i < len; ++i) {
-            res[i] = P2[i];
-        }
-        for (size_t i = len; i < 2 * len; ++i) {
-            res[i] = P1[i - len];
-        }
-        for (size_t i = k; i < len + k; ++i) {
-            res[i] += P3[i - k];
+
+    for (size_t i = 0; i < P2.size(); ++i) {
+        res[i] += P2[i];
+    }
+
+    for (size_t i = 0; i < P3.size(); ++i) {
+        if (i + k < res.size()) { 
+            res[i + k] += P3[i];
+        } else {
         }
     }
-    
+
+    for (size_t i = 0; i < P1.size(); ++i) {
+        if (i + len < res.size()) { 
+            res[i + len] += P1[i];
+        } else {
+        }
+    }
+
     return res;
 }
 
@@ -126,13 +111,14 @@ std::string par_karatsuba_mul_string(const std::string &a, const std::string &b)
     a_vec.resize(vec_size, 0);
     b_vec.resize(vec_size, 0);
     
-    int max_threads = omp_get_max_threads();
-    int num_threads = std::min(max_threads, static_cast<int>(std::log2(vec_size)));
-    if (num_threads > 1) {
-        omp_set_num_threads(num_threads);
-    }
+    // int max_threads = omp_get_max_threads();
+    // int num_threads = std::min(max_threads, static_cast<int>(std::log2(vec_size)));
+    // if (num_threads > 1) {
+    //     omp_set_num_threads(num_threads);
+    //     std::cout << "  Using " << omp_get_max_threads() << " threads\n";
+    // }
     
-    std::vector<long long> result_vec = karatsuba_mul_vector(a_vec, b_vec);
+    std::vector<long long> result_vec = par_karatsuba_mul_vector(a_vec, b_vec);
     
     return vector_to_string(result_vec);
 }

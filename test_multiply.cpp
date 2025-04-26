@@ -122,9 +122,14 @@ int main(int argc, char* argv[]) {
             if (alg == Algorithm::NAIVE) {
                 result = naive_mul_string(A, B);
             } else {
-                if (alg == Algorithm::KARATSUBA_SEQ) omp_set_num_threads(1);
-                if (alg == Algorithm::KARATSUBA_PAR) std::cout << "  Using " << omp_get_max_threads() << " threads\n";
-                result = karatsuba_mul_string(A, B);
+                if (alg == Algorithm::KARATSUBA_SEQ) {
+                    // omp_set_num_threads(1);
+                    result = karatsuba_mul_string(A, B);
+                }
+                if (alg == Algorithm::KARATSUBA_PAR) {
+                    // std::cout << "  Using " << omp_get_max_threads() << " threads\n";
+                    result = par_karatsuba_mul_string(A, B);
+                }
             }
 
             auto end = std::chrono::high_resolution_clock::now();
