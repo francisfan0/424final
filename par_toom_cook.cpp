@@ -134,31 +134,31 @@ BigInt par_toom_cook_mul_vector(const BigInt &x, const BigInt &y) {
         {
             #pragma omp section
             {
-                R0 = toom_cook_mul_vector(P0, Q0);
+                R0 = par_toom_cook_mul_vector(P0, Q0);
             }
             #pragma omp section
             {
-                R1 = toom_cook_mul_vector(P1, Q1);
+                R1 = par_toom_cook_mul_vector(P1, Q1);
             }
             #pragma omp section
             {
-                Rm1 = toom_cook_mul_vector(Pm1, Qm1);
+                Rm1 = par_toom_cook_mul_vector(Pm1, Qm1);
             }
             #pragma omp section
             {
-                Rm2 = toom_cook_mul_vector(Pm2, Qm2);
+                Rm2 = par_toom_cook_mul_vector(Pm2, Qm2);
             }
             #pragma omp section
             {
-                Rinf = toom_cook_mul_vector(Pinf, Qinf);
+                Rinf = par_toom_cook_mul_vector(Pinf, Qinf);
             }
         }
     } else {
-        R0 = toom_cook_mul_vector(P0, Q0);
-        R1 = toom_cook_mul_vector(P1, Q1);
-        Rm1 = toom_cook_mul_vector(Pm1, Qm1);
-        Rm2 = toom_cook_mul_vector(Pm2, Qm2);
-        Rinf = toom_cook_mul_vector(Pinf, Qinf);
+        R0 = par_toom_cook_mul_vector(P0, Q0);
+        R1 = par_toom_cook_mul_vector(P1, Q1);
+        Rm1 = par_toom_cook_mul_vector(Pm1, Qm1);
+        Rm2 = par_toom_cook_mul_vector(Pm2, Qm2);
+        Rinf = par_toom_cook_mul_vector(Pinf, Qinf);
     }
 
     // Interpolation
