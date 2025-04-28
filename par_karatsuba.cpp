@@ -116,26 +116,43 @@ std::vector<long long> par_karatsuba_mul_vector_plib(const std::vector<long long
     std::vector<long long> Yr(y.begin(), y.begin() + k);
     std::vector<long long> Yl(y.begin() + k, y.end());
     
-    std::vector<long long> P1, P2;
+    // std::vector<long long> P1, P2;
     
-    if (len >= PARALLEL_THRESHOLD) {
-        std::vector<long long> P1_local, P2_local;
+    // if (len >= PARALLEL_THRESHOLD) {
+    //     std::vector<long long> P1_local, P2_local;
         
-        parlay::par_do(
-            [&]() { P1_local = par_karatsuba_mul_vector_plib(Xl, Yl); },
-            [&]() { P2_local = par_karatsuba_mul_vector_plib(Xr, Yr); }
-        );
+    //     parlay::par_do(
+    //         [&]() { P1_local = par_karatsuba_mul_vector_plib(Xl, Yl); },
+    //         [&]() { P2_local = par_karatsuba_mul_vector_plib(Xr, Yr); }
+    //     );
         
-        P1 = std::move(P1_local);
-        P2 = std::move(P2_local);
-    } else {
-        P1 = par_karatsuba_mul_vector_plib(Xl, Yl);
-        P2 = par_karatsuba_mul_vector_plib(Xr, Yr);
-    }
+    //     P1 = std::move(P1_local);
+    //     P2 = std::move(P2_local);
+    // } else {
+    //     P1 = par_karatsuba_mul_vector_plib(Xl, Yl);
+    //     P2 = par_karatsuba_mul_vector_plib(Xr, Yr);
+    // }
     
-    std::vector<long long> Xlr(k);
-    std::vector<long long> Ylr(k);
+    // std::vector<long long> Xlr(k);
+    // std::vector<long long> Ylr(k);
     
+    // if (k >= PARALLEL_THRESHOLD / 4) {
+    //     parlay::parallel_for(0, k, [&](size_t i) {
+    //         Xlr[i] = Xl[i] + Xr[i];
+    //         Ylr[i] = Yl[i] + Yr[i];
+    //     });
+    // } else {
+    //     for (size_t i = 0; i < k; ++i) {
+    //         Xlr[i] = Xl[i] + Xr[i];
+    //         Ylr[i] = Yl[i] + Yr[i];
+    //     }
+    // }
+    
+    // std::vector<long long> P3 = par_karatsuba_mul_vector_plib(Xlr, Ylr);
+    std::vector<long long> P1, P2, P3;
+    std::vector<long long> Xlr(k), Ylr(k);
+
+    // Compute Xlr and Ylr in parallel first
     if (k >= PARALLEL_THRESHOLD / 4) {
         parlay::parallel_for(0, k, [&](size_t i) {
             Xlr[i] = Xl[i] + Xr[i];
@@ -147,8 +164,15 @@ std::vector<long long> par_karatsuba_mul_vector_plib(const std::vector<long long
             Ylr[i] = Yl[i] + Yr[i];
         }
     }
-    
-    std::vector<long long> P3 = par_karatsuba_mul_vector_plib(Xlr, Ylr);
+
+    // Launch the three recursive calls in parallel
+    parlay::par_do(
+        [&]() { P1 = par_karatsuba_mul_vector_plib(Xl, Yl); },
+        [&]() {parlay::par_do(
+            [&]() { P2 = par_karatsuba_mul_vector_plib(Xr, Yr); },
+            [&]() { P3 = par_karatsuba_mul_vector_plib(Xlr, Ylr); } // Xlr, Ylr are ready
+        );}
+    );
     
     size_t max_size = std::max(P1.size(), P2.size());
     if (P3.size() < max_size) {
