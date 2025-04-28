@@ -1,5 +1,9 @@
 #include "bigint_multiply.h"
-#include <random>
+#include <vector>
+#include <string>
+#include <cmath> // For ceil/log2
+#include <algorithm> // For max
+#include <omp.h> // Include OpenMP header
 
 std::string random_bigint(size_t len) {
     static std::mt19937_64 rng{std::random_device{}()};
@@ -24,18 +28,28 @@ std::string truncate_display(const std::string &s, size_t head, size_t tail) {
 }
 
 std::vector<long long> string_to_vector(const std::string& s, bool pad_to_power_of_2) {
-    size_t len = s.size();
+    size_t original_len = s.size();
+    size_t len = original_len;
+
     if (pad_to_power_of_2) {
-        size_t pow2 = 1;
-        while (pow2 < len) pow2 *= 2;
-        len = pow2;
+        if (len > 0) {
+             len = 1;
+             while (len < original_len) len *= 2;
+        } else {
+             len = 0;
+        }
     }
-    
+
     std::vector<long long> result(len, 0);
-    for (size_t i = 0; i < s.size(); ++i) {
-        result[s.size() - 1 - i] = s[i] - '0';
+
+    #pragma omp parallel for
+    for (size_t i = 0; i < original_len; ++i) {
+        size_t result_idx = original_len - 1 - i;
+        if (result_idx < len) {
+            result[result_idx] = s[i] - '0';
+        }
     }
-    
+
     return result;
 }
 
