@@ -31,41 +31,45 @@ std::vector<long long> par_karatsuba_mul_vector_open(const std::vector<long long
     
     std::vector<long long> P1, P2, P3;
     
-    if (len >= PARALLEL_THRESHOLD) {
-        #pragma omp parallel sections
-        {
-            #pragma omp section
-            {
-                P1 = par_karatsuba_mul_vector_open(Xl, Yl);
-            }
-            
-            #pragma omp section
-            {
-                P2 = par_karatsuba_mul_vector_open(Xr, Yr);
-            }
-        }
-    } else {
-        P1 = par_karatsuba_mul_vector_open(Xl, Yl);
-        P2 = par_karatsuba_mul_vector_open(Xr, Yr);
-    }
-    
     std::vector<long long> Xlr(k);
     std::vector<long long> Ylr(k);
-    
-    if (k >= PARALLEL_THRESHOLD / 4) {
-        #pragma omp parallel for
-        for (size_t i = 0; i < k; ++i) {
-            Xlr[i] = Xl[i] + Xr[i];
-            Ylr[i] = Yl[i] + Yr[i];
+
+    #pragma omp parallel
+    #pragma omp single nowait
+    {
+        #pragma omp task shared(P1)
+        {
+            P1 = par_karatsuba_mul_vector_open(Xl, Yl);
         }
-    } else {
-        for (size_t i = 0; i < k; ++i) {
-            Xlr[i] = Xl[i] + Xr[i];
-            Ylr[i] = Yl[i] + Yr[i];
+
+        #pragma omp task shared(P2)
+        {
+            P2 = par_karatsuba_mul_vector_open(Xr, Yr);
+        }
+
+        #pragma omp task shared(Xlr, Ylr)
+        {
+            if (k >= PARALLEL_THRESHOLD / 4) {
+                #pragma omp parallel for
+                for (size_t i = 0; i < k; ++i) {
+                    Xlr[i] = Xl[i] + Xr[i];
+                    Ylr[i] = Yl[i] + Yr[i];
+                }
+            } else {
+                for (size_t i = 0; i < k; ++i) {
+                    Xlr[i] = Xl[i] + Xr[i];
+                    Ylr[i] = Yl[i] + Yr[i];
+                }
+            }
+        }
+
+        #pragma omp task shared(P3, Xlr, Ylr)
+        {
+            P3 = par_karatsuba_mul_vector_open(Xlr, Ylr);
         }
     }
-    
-    P3 = par_karatsuba_mul_vector_open(Xlr, Ylr);
+
+    #pragma omp taskwait
     
     if (len >= PARALLEL_THRESHOLD / 4) {
         #pragma omp parallel for
@@ -115,44 +119,10 @@ std::vector<long long> par_karatsuba_mul_vector_plib(const std::vector<long long
     std::vector<long long> Xl(x.begin() + k, x.end());
     std::vector<long long> Yr(y.begin(), y.begin() + k);
     std::vector<long long> Yl(y.begin() + k, y.end());
-    
-    // std::vector<long long> P1, P2;
-    
-    // if (len >= PARALLEL_THRESHOLD) {
-    //     std::vector<long long> P1_local, P2_local;
-        
-    //     parlay::par_do(
-    //         [&]() { P1_local = par_karatsuba_mul_vector_plib(Xl, Yl); },
-    //         [&]() { P2_local = par_karatsuba_mul_vector_plib(Xr, Yr); }
-    //     );
-        
-    //     P1 = std::move(P1_local);
-    //     P2 = std::move(P2_local);
-    // } else {
-    //     P1 = par_karatsuba_mul_vector_plib(Xl, Yl);
-    //     P2 = par_karatsuba_mul_vector_plib(Xr, Yr);
-    // }
-    
-    // std::vector<long long> Xlr(k);
-    // std::vector<long long> Ylr(k);
-    
-    // if (k >= PARALLEL_THRESHOLD / 4) {
-    //     parlay::parallel_for(0, k, [&](size_t i) {
-    //         Xlr[i] = Xl[i] + Xr[i];
-    //         Ylr[i] = Yl[i] + Yr[i];
-    //     });
-    // } else {
-    //     for (size_t i = 0; i < k; ++i) {
-    //         Xlr[i] = Xl[i] + Xr[i];
-    //         Ylr[i] = Yl[i] + Yr[i];
-    //     }
-    // }
-    
-    // std::vector<long long> P3 = par_karatsuba_mul_vector_plib(Xlr, Ylr);
+
     std::vector<long long> P1, P2, P3;
     std::vector<long long> Xlr(k), Ylr(k);
 
-    // Compute Xlr and Ylr in parallel first
     if (k >= PARALLEL_THRESHOLD / 4) {
         parlay::parallel_for(0, k, [&](size_t i) {
             Xlr[i] = Xl[i] + Xr[i];
@@ -165,7 +135,6 @@ std::vector<long long> par_karatsuba_mul_vector_plib(const std::vector<long long
         }
     }
 
-    // Launch the three recursive calls in parallel
     parlay::par_do(
         [&]() { P1 = par_karatsuba_mul_vector_plib(Xl, Yl); },
         [&]() {parlay::par_do(
@@ -247,7 +216,7 @@ std::string par_karatsuba_mul_string(const std::string &a, const std::string &b)
     a_vec.resize(vec_size, 0);
     b_vec.resize(vec_size, 0);
     
-    std::vector<long long> result_vec = par_karatsuba_mul_vector_plib(a_vec, b_vec);
+    std::vector<long long> result_vec = par_karatsuba_mul_vector_open(a_vec, b_vec);
     
     return vector_to_string(result_vec);
 }
