@@ -16,6 +16,7 @@ std::string karatsuba_mul_string(const std::string &a, const std::string &b);
 std::string par_karatsuba_mul_string(const std::string &a, const std::string &b);
 std::string toom_cook_mul_string(const std::string &a, const std::string &b);
 std::string par_toom_cook_mul_string(const std::string &a, const std::string &b);
+std::string par_toom_cook_mul_string_plib(const std::string &a, const std::string &b);
 
 std::vector<long long> naive_mul_vector(const std::vector<long long>& x, const std::vector<long long>& y);
 std::vector<long long> karatsuba_mul_vector(const std::vector<long long>& x, const std::vector<long long>& y);

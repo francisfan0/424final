@@ -9,7 +9,7 @@ using namespace std;
 using BigInt = vector<long long>;
 
 static constexpr size_t TOOM_COOK_THRESHOLD = 64;
-static constexpr size_t PARALLEL_THRESHOLD = 1024;
+static constexpr size_t PARALLEL_THRESHOLD = 10000;
 
 BigInt par_add(const BigInt &a, const BigInt &b) {
     BigInt res(max(a.size(), b.size()));
