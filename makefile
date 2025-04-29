@@ -10,4 +10,4 @@ multiply_test: $(OBJECTS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o multiply_test
+	rm -f *.o multiply_test naive
