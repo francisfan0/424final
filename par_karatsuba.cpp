@@ -63,6 +63,8 @@ std::vector<long long> par_karatsuba_mul_vector_open(const std::vector<long long
             }
         }
 
+        #pragma omp taskwait
+
         #pragma omp task shared(P3, Xlr, Ylr)
         {
             P3 = par_karatsuba_mul_vector_open(Xlr, Ylr);
@@ -84,21 +86,40 @@ std::vector<long long> par_karatsuba_mul_vector_open(const std::vector<long long
         }
     }
 
-    for (size_t i = 0; i < P2.size(); ++i) {
-        res[i] += P2[i];
-    }
-
-    for (size_t i = 0; i < P3.size(); ++i) {
-        if (i + k < res.size()) { 
-            res[i + k] += P3[i];
-        } else {
+    if (len >= PARALLEL_THRESHOLD / 4) {
+        #pragma omp parallel for
+        for (size_t i = 0; i < P2.size(); ++i) {
+            res[i] += P2[i];
         }
-    }
 
-    for (size_t i = 0; i < P1.size(); ++i) {
-        if (i + len < res.size()) { 
-            res[i + len] += P1[i];
-        } else {
+        #pragma omp parallel for
+        for (size_t i = 0; i < P3.size(); ++i) {
+            if (i + k < res.size()) {
+                res[i + k] += P3[i];
+            }
+        }
+
+        #pragma omp parallel for
+        for (size_t i = 0; i < P1.size(); ++i) {
+            if (i + len < res.size()) {
+                res[i + len] += P1[i];
+            }
+        }
+    } else {
+        for (size_t i = 0; i < P2.size(); ++i) {
+            res[i] += P2[i];
+        }
+
+        for (size_t i = 0; i < P3.size(); ++i) {
+            if (i + k < res.size()) {
+                res[i + k] += P3[i];
+            }
+        }
+
+        for (size_t i = 0; i < P1.size(); ++i) {
+            if (i + len < res.size()) {
+                res[i + len] += P1[i];
+            }
         }
     }
 
@@ -217,6 +238,7 @@ std::string par_karatsuba_mul_string(const std::string &a, const std::string &b)
     b_vec.resize(vec_size, 0);
     
     std::vector<long long> result_vec = par_karatsuba_mul_vector_open(a_vec, b_vec);
+    // std::vector<long long> result_vec = par_karatsuba_mul_vector_plib(a_vec, b_vec);
     
     return vector_to_string(result_vec);
 }

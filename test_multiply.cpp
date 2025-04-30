@@ -180,7 +180,8 @@ int main(int argc, char* argv[]) {
                     result = toom_cook_mul_string(A, B);
                     break;
                 case Algorithm::TOOM_COOK_PAR:
-                    result = par_toom_cook_mul_string_plib(A, B);
+                    result = par_toom_cook_mul_string(A, B);
+                    // result = par_toom_cook_mul_string_plib(A, B);
                     break;
                 default:
                     result = "Error: Unknown Algorithm";
