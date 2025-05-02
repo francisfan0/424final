@@ -1,6 +1,6 @@
 # Large Integer Multiplication
 
-This project provides C++ implementations of large integer multiplication algorithms using decimal strings. It includes the "schoolbook" (naive) algorithm, a sequential Karatsuba method, and a parallel Karatsuba implementation, along with a benchmark/test harness to compare their performance and correctness.
+This project provides C++ implementations of large integer multiplication algorithms that can multiply decimal strings. It includes the "schoolbook" (naive) algorithm, a sequential Karatsuba implementation, a parallel Karatsuba implementation, a sequential 3-way Toom-Cook implementation, and a parallel 3-way Toom-Cook implementation. The project also includes a benchmark/test harness to compare the algorithms' performance and correctness.
 
 ---
 
@@ -10,9 +10,9 @@ This project provides C++ implementations of large integer multiplication algori
 - Multiplies two decimal strings using:
   - Naive (grade-school) algorithm: $O(n^2)$  
   - Sequential Karatsuba multiplication: $O(n^{\log_2 3}) \approx O(n^{1.585})$
-  - Parallel Karatsuba multiplication: Parallelized version using OpenMP
+  - Parallel Karatsuba multiplication: Parallelized version using OpenMP / ParlayLib
   - Sequential 3-way Toom-Cook multiplication: $O(n^{\log_3 5}) \approx O(n^{1.465})$
-  - Parallel 3-way Toom-Cook multiplication: Parallelized version using OpenMP
+  - Parallel 3-way Toom-Cook multiplication: Parallelized version using OpenMP / ParlayLib
 - Compares and verifies algorithms for correctness  
 - Reports detailed performance statistics and speedup  
 - Command-line interface to configure number of tests, operand size, and algorithm selection
@@ -71,7 +71,7 @@ make clean
 **Examples:**
 
 ```bash
-./multiply_test 10 500
+./multiply_test 10 500 0 1 2 3 4
 ```
 
 Runs 10 tests of multiplying two randomly generated 500-digit integers using all algorithms.
@@ -96,8 +96,8 @@ For each test case, the program prints:
 
 - Truncated representations of input operands  
 - Results from the selected algorithm(s)  
-- Whether results match (either directly or via small-size verification)  
-- Timing for each algorithm and the calculated speedup  
+- Result correctness
+- Average execution time for each algorithm and the calculated speedup  
 
 **Example output with all algorithms:**
 
@@ -118,15 +118,6 @@ Test #1:
 ```
 
 The program also outputs a summary of average times and speedups after all tests are completed.
-
----
-
-## Implementation Details
-
-- The parallel Karatsuba implementation uses OpenMP to parallelize recursive calls and vector operations
-- A threshold mechanism prevents creating threads for small computations where overhead would outweigh benefits
-- The number of threads adapts dynamically based on the input size and available cores
-- For very small multiplications, both Karatsuba implementations fall back to the naive algorithm
 
 ---
 
